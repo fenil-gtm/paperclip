@@ -26,4 +26,13 @@ if [ "$changed" = "1" ]; then
     chown -R node:node /paperclip
 fi
 
+# Bootstrap CEO invite on first start if env var is set
+if [ -n "$PAPERCLIP_BOOTSTRAP_CEO" ]; then
+    echo "==> PAPERCLIP_BOOTSTRAP_CEO set, running bootstrap after server starts..."
+    (
+        sleep 30
+        gosu node pnpm --prefix /app paperclipai auth bootstrap-ceo --base-url "$PAPERCLIP_BOOTSTRAP_CEO"
+    ) &
+fi
+
 exec gosu node "$@"
