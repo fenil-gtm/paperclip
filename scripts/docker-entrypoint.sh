@@ -30,7 +30,13 @@ fi
 if [ -n "$PAPERCLIP_BOOTSTRAP_CEO" ]; then
     echo "==> PAPERCLIP_BOOTSTRAP_CEO set, running bootstrap after server starts..."
     (
-        sleep 30
+        # Wait for config.json to exist (server creates it on first run)
+        i=0
+        while [ ! -f "$PAPERCLIP_CONFIG" ] && [ $i -lt 60 ]; do
+            sleep 2
+            i=$((i+1))
+        done
+        echo "==> Config found, running bootstrap-ceo..."
         gosu node pnpm --prefix /app paperclipai auth bootstrap-ceo --base-url "$PAPERCLIP_BOOTSTRAP_CEO"
     ) &
 fi
