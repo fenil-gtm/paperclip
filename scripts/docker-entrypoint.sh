@@ -31,6 +31,11 @@ if [ -d "/paperclip/instances/default/db" ]; then
     chmod 700 /paperclip/instances/default/db
 fi
 
+# Fix config file ownership so the node user can read/write it
+if [ -f "/paperclip/instances/default/config.json" ]; then
+    chown node:node /paperclip/instances/default/config.json
+fi
+
 # Bootstrap CEO invite on first start if env var is set
 if [ -n "$PAPERCLIP_BOOTSTRAP_CEO" ]; then
     echo "==> PAPERCLIP_BOOTSTRAP_CEO set, running bootstrap after server starts..."
