@@ -46,6 +46,15 @@ if [ -n "$PAPERCLIP_BOOTSTRAP_CEO" ]; then
             sleep 2
             i=$((i+1))
         done
+        # Wait for server health endpoint to be ready
+        i=0
+        while [ $i -lt 60 ]; do
+            if curl -sf http://localhost:3100/api/health > /dev/null 2>&1; then
+                break
+            fi
+            sleep 2
+            i=$((i+1))
+        done
         echo "==> Config found, running bootstrap-ceo..."
         gosu node pnpm --prefix /app paperclipai auth bootstrap-ceo --base-url "$PAPERCLIP_BOOTSTRAP_CEO"
     ) &
