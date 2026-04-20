@@ -16,7 +16,7 @@ RUN apt-get update \
 # Modify the existing node user/group to have the specified UID/GID to match host user
 RUN usermod -u $USER_UID --non-unique node \
   && groupmod -g $USER_GID --non-unique node \
-  && usermod -g $USER_GID -d /paperclip node
+  && usermod -g $USER_GID -d /home/node node
 
 FROM base AS deps
 WORKDIR /app
@@ -56,13 +56,17 @@ WORKDIR /app
 COPY --chown=node:node --from=build /app /app
 RUN npm install --global --omit=dev @anthropic-ai/claude-code@latest @openai/codex@latest opencode-ai \
   && mkdir -p /paperclip \
-  && chown node:node /paperclip
+  && mkdir -p /home/node/.ssh \
+  && chmod 700 /home/node/.ssh \
+  && usermod -p '*' node \
+  && chown -R node:node /paperclip \
+  && chown -R node:node /home/node
 
 COPY scripts/docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 ENV NODE_ENV=production \
-  HOME=/paperclip \
+  HOME=/home/node \
   HOST=0.0.0.0 \
   PORT=3100 \
   SERVE_UI=true \
